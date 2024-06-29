@@ -2,12 +2,12 @@
 %global app_build release
 %global dnf_backend DNF4
 %global app_name yumex
-%global gitcommit 7a0e9d17518a0035629fdb80120000642a3b1020
-%global shortcommit 7a0e9d1
+%global gitcommit 519933c70c18237b02584b2d08cc010bbb9e719b
+%global shortcommit 519933c
 
 Name:     %{app_name}
-Version:  5.0.0
-Release:  6.git.%{shortcommit}%{?dist}
+Version:  5.0.3
+Release:  4.git.%{shortcommit}%{?dist}
 Summary:  Yum Extender graphical package management tool
 
 Group:    Applications/System
@@ -17,7 +17,7 @@ Source0:  https://github.com/timlau/yumex-ng/archive/%{gitcommit}.zip#/%{name}-%
 Source1:  dk.yumex.Yumex.svg
 Patch0:   rename-desktop-shortcut.patch
 Patch1:   0001-add-nobara-update-system-button.patch
-Patch2:   0001-fix-memory-leak-in-yumex_updater_systray-service.patch
+Patch2:   0001-fixup-service-unit-error.patch
 
 BuildArch: noarch
 BuildRequires: python3-devel
@@ -39,6 +39,7 @@ Requires: flatpak-libs
 Requires: nobara-welcome
 Requires: python3-dbus
 Requires: libappindicator-gtk3
+Requires: python3-dasbus
 
 # dnf4 requirements
 %if "%{dnf_backend}" == "DNF4"
@@ -50,7 +51,6 @@ Requires: python3-dnf
 %if "%{dnf_backend}" == "DNF5"
 Requires: python3-libdnf5
 Requires: dnf5daemon-server
-Requires: python3-dasbus
 %endif
 
 Obsoletes: yumex-dnf <= 4.5.1

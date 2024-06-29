@@ -1,28 +1,58 @@
-Name:    plasma-workspace-wallpapers
+Name:    xdg-desktop-portal-kde
+Summary: Backend implementation for xdg-desktop-portal using Qt/KF5
 Version: 6.1.1
 Release: 1%{?dist}
-Summary: Additional wallpapers for Plasma workspace
-License: LGPLv3
-URL:     https://cgit.kde.org/%{name}.git
 
-Source0: https://download.kde.org/stable/plasma/%{version}/%{name}-%{version}.tar.xz
-BuildArch: noarch
+License: BSD-2-Clause AND CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (LGPL-2.1-only OR LGPL-3.0-only)
+URL:     https://invent.kde.org/plasma/%{name}
+
+Source0:        https://download.kde.org/stable/plasma/%{version}/%{name}-%{version}.tar.xz
+# auto-allow remote control without prompt -- needed for steamdeck controls
+Patch0:         auto-accept-remote.patch
 
 BuildRequires:  extra-cmake-modules
 BuildRequires:  kf6-rpm-macros
+BuildRequires:  systemd-rpm-macros
+
 BuildRequires:  qt6-qtbase-devel
+# libQt6Gui.so.6(Qt_6.6_PRIVATE_API)(64bit)
+# libQt6PrintSupport.so.6(Qt_6.6_PRIVATE_API)(64bit)
+BuildRequires:  qt6-qtbase-private-devel
+BuildRequires:  qt6-qtbase-static
+BuildRequires:  qt6-qtdeclarative-devel
+BuildRequires:  qt6-qtquickcontrols2-devel
+BuildRequires:  qt6-qtwayland-devel
+BuildRequires:  cmake(Qt6WaylandClient)
 
-Requires:       kde-filesystem
+BuildRequires:  plasma-wayland-protocols-devel
+BuildRequires:  wayland-protocols-devel
+BuildRequires:  wayland-devel
 
-# Elarun moved here
-Conflicts:      kde-wallpapers < 15.08.3-10
+BuildRequires:  cmake(KF6Config)
+BuildRequires:  cmake(KF6CoreAddons)
+BuildRequires:  cmake(KF6Declarative)
+BuildRequires:  cmake(KF6GlobalAccel)
+BuildRequires:  cmake(KF6GuiAddons)
+BuildRequires:  cmake(KF6I18n)
+BuildRequires:  cmake(KF6IconThemes)
+BuildRequires:  cmake(KF6KIO)
+BuildRequires:  cmake(KF6Kirigami2)
+BuildRequires:  cmake(KF6Notifications)
+BuildRequires:  cmake(KF6StatusNotifierItem)
+BuildRequires:  cmake(KF6WidgetsAddons)
+BuildRequires:  cmake(KF6WindowSystem)
 
-# when we went noarch
-Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
+# Plasma
+BuildRequires:  cmake(KWayland)
 
+Requires:       xdg-desktop-portal
+# See https://bugzilla.redhat.com/show_bug.cgi?id=2240211
+Requires:       xdg-desktop-portal-gtk
+Supplements:    plasma-desktop
 
 %description
-%{summary}.
+A backend implementation for xdg-desktop-portal that is using Qt/KF5 and various
+pieces of KDE infrastructure.
 
 
 %prep
@@ -30,47 +60,27 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 
 
 %build
-%cmake_kf6 -DBUILD_WITH_QT6=ON
+%cmake_kf6
+
 %cmake_build
 
 
 %install
 %cmake_install
 
+%find_lang xdg-desktop-portal-kde
 
-%files
-%license COPYING.LGPL3
-%{_datadir}/wallpapers/Altai/
-%{_datadir}/wallpapers/Autumn/
-%{_datadir}/wallpapers/BytheWater/
-%{_datadir}/wallpapers/Canopee/
-%{_datadir}/wallpapers/Cascade/
-%{_datadir}/wallpapers/Cluster/
-%{_datadir}/wallpapers/ColdRipple/
-%{_datadir}/wallpapers/ColorfulCups/
-%{_datadir}/wallpapers/DarkestHour/
-%{_datadir}/wallpapers/Elarun/
-%{_datadir}/wallpapers/EveningGlow/
-%{_datadir}/wallpapers/FallenLeaf/
-%{_datadir}/wallpapers/FlyingKonqui/
-%{_datadir}/wallpapers/Flow/
-%{_datadir}/wallpapers/Grey/
-%{_datadir}/wallpapers/Honeywave/
-%{_datadir}/wallpapers/IceCold/
-%{_datadir}/wallpapers/Kay/
-%{_datadir}/wallpapers/Kite/
-%{_datadir}/wallpapers/Kokkini/
-%{_datadir}/wallpapers/MilkyWay/
-%{_datadir}/wallpapers/Mountain/
-%{_datadir}/wallpapers/OneStandsOut/
-%{_datadir}/wallpapers/Opal/
-%{_datadir}/wallpapers/PastelHills/
-%{_datadir}/wallpapers/Patak/
-%{_datadir}/wallpapers/Path/
-%{_datadir}/wallpapers/SafeLanding/
-%{_datadir}/wallpapers/Shell/
-%{_datadir}/wallpapers/summer_1am/
-%{_datadir}/wallpapers/Volna/
+
+%files -f xdg-desktop-portal-kde.lang
+%license LICENSES/*
+%{_libexecdir}/xdg-desktop-portal-kde
+%{_datadir}/dbus-1/services/org.freedesktop.impl.portal.desktop.kde.service
+%{_datadir}/xdg-desktop-portal/portals/kde.portal
+%{_datadir}/applications/org.freedesktop.impl.portal.desktop.kde.desktop
+%{_datadir}/knotifications6/xdg-desktop-portal-kde.notifyrc
+%{_datadir}/qlogging-categories6/xdp-kde.categories
+%{_datadir}/xdg-desktop-portal/kde-portals.conf
+%{_userunitdir}/plasma-xdg-desktop-portal-kde.service
 
 %changelog
 * Thu Jun 13 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 6.1.0-1
@@ -85,6 +95,9 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Apr 16 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 6.0.4-1
 - 6.0.4
 
+* Thu Apr 04 2024 Jan Grulich <jgrulich@redhat.com> - 6.0.3-2
+- Rebuild (qt6)
+
 * Tue Mar 26 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 6.0.3-1
 - 6.0.3
 
@@ -97,13 +110,13 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Feb 21 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 6.0.0-1
 - 6.0.0
 
+* Fri Feb 16 2024 Jan Grulich <jgrulich@redhat.com> - 5.93.0-2
+- Rebuild (qt6)
+
 * Wed Jan 31 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 5.93.0-1
 - 5.93.0
 
-* Thu Jan 25 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.92.0-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
-
-* Sun Jan 21 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.92.0-2
+* Sat Jan 27 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.92.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 
 * Wed Jan 10 2024 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 5.92.0-1
@@ -115,11 +128,17 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Sun Dec 03 2023 Justin Zobel <justin.zobel@gmail.com> - 5.90.0-1
 - Update to 5.90.0
 
-* Fri Nov 10 2023 Alessandro Astone <ales.astone@gmail.com> - 5.27.80-1
+* Wed Nov 29 2023 Jan Grulich <jgrulich@redhat.com> - 5.27.80-2
+- Rebuild (qt6)
+
+* Sun Nov 12 2023 Alessandro Astone <ales.astone@gmail.com> - 5.27.80-1
 - 5.27.80
 
 * Tue Oct 24 2023 Steve Cossette <farchord@gmail.com> - 5.27.9-1
 - 5.27.9
+
+* Wed Sep 27 2023 Timothée Ravier <tim@siosm.fr> - 5.27.8-2
+- Fallback to other portals for Settings (fedora#2240211)
 
 * Tue Sep 12 2023 justin.zobel@gmail.com - 5.27.8-1
 - 5.27.8
@@ -127,7 +146,7 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Aug 01 2023 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 5.27.7-1
 - 5.27.7
 
-* Fri Jul 21 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.27.6-2
+* Sat Jul 22 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.27.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
 
 * Sun Jun 25 2023 Marc Deop i Argemí <marcdeop@fedoraproject.org> - 5.27.6-1
@@ -151,7 +170,7 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Thu Feb 09 2023 Marc Deop <marcdeop@fedoraproject.org> - 5.27.0-1
 - 5.27.0
 
-* Fri Jan 20 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.26.90-2
+* Sat Jan 21 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.26.90-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
 
 * Thu Jan 19 2023 Marc Deop <marcdeop@fedoraproject.org> - 5.26.90-1
@@ -169,6 +188,10 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Oct 26 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.26.2-1
 - 5.26.2
 
+* Sat Oct 22 2022 Vitaly Zaitsev <vitaly@easycoding.org> - 5.26.1-2
+- Removed strict flatpak dependency.
+- Added a weak dependency on plasma-desktop.
+
 * Tue Oct 18 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.26.1-1
 - 5.26.1
 
@@ -184,8 +207,11 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Aug 03 2022 Justin Zobel <justin@1707.io> - 5.25.4-1
 - Update to 5.25.4
 
-* Fri Jul 22 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.25.3-2
+* Sat Jul 23 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.25.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
+* Thu Jul 14 2022 Jan Grulich <jgrulich@redhat.com> - 5.25.3-2
+- Rebuild (qt5)
 
 * Tue Jul 12 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.25.3-1
 - 5.25.3
@@ -202,14 +228,23 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Fri May 20 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.90-1
 - 5.24.90
 
+* Tue May 17 2022 Jan Grulich <jgrulich@redhat.com> - 5.24.5-2
+- Rebuild (qt5)
+
 * Tue May 03 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.5-1
 - 5.24.5
 
 * Thu Mar 31 2022 Justin Zobel <justin@1707.io> - 5.24.4-1
 - Update to 5.24.4
 
+* Thu Mar 10 2022 Marc Deop <marcdeop@fedoraproejct.org> - 5.24.3-2
+- Rebuild (qt5)
+
 * Tue Mar 08 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.3-1
 - 5.24.3
+
+* Tue Mar 08 2022 Jan Grulich <jgrulich@redhat.com> - 5.24.2-2
+- Rebuild (qt5)
 
 * Tue Feb 22 2022 Rex Dieter <rdieter@fedoraproject.org> - 5.24.2-1
 - 5.24.2
@@ -220,7 +255,7 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Thu Feb 03 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.24.0-1
 - 5.24.0
 
-* Fri Jan 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.23.90-2
+* Sat Jan 22 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.23.90-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
 * Thu Jan 13 2022 Marc Deop <marcdeop@fedoraproject.org> - 5.23.90-1
@@ -244,9 +279,6 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Fri Oct 08 2021 Marc Deop <marcdeop@fedoraproject.org> - 5.23.0-1
 - 5.23.0
 
-* Sat Sep 18 2021 Marc Deop <marcdeop@fedoraproject.org> - 5.22.90-2
-- Track Altai wallpapers.
-
 * Fri Sep 17 2021 Marc Deop <marcdeop@fedoraproject.org> - 5.22.90-1
 - 5.22.90
 
@@ -256,9 +288,8 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Jul 27 2021 Jan Grulich <jgrulich@redhat.com> - 5.22.4-1
 - 5.22.4
 
-* Tue Jul 27 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.22.3-2
-- Second attempt - Rebuilt for
-  https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
+* Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.22.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
 * Mon Jul 12 2021 Jan Grulich <jgrulich@redhat.com> - 5.22.3-1
 - 5.22.3
@@ -305,28 +336,34 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Jan  5 16:03:33 CET 2021 Jan Grulich <jgrulich@redhat.com> - 5.20.5-1
 - 5.20.5
 
-* Tue Dec  1 09:43:00 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.4-1
+* Tue Dec  1 09:43:01 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.4-1
 - 5.20.4
 
-* Wed Nov 11 08:22:42 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.3-1
+* Mon Nov 23 07:55:40 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.3-2
+- rebuild (qt5)
+
+* Wed Nov 11 08:22:43 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.3-1
 - 5.20.3
 
-* Tue Oct 27 14:24:44 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.2-1
+* Tue Oct 27 14:25:17 CET 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.2-1
 - 5.20.2
 
-* Tue Oct 20 15:30:31 CEST 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.1-1
+* Tue Oct 20 15:31:01 CEST 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.1-1
 - 5.20.1
 
-* Sun Oct 11 19:50:04 CEST 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.0-1
+* Sun Oct 11 19:50:05 CEST 2020 Jan Grulich <jgrulich@redhat.com> - 5.20.0-1
 - 5.20.0
 
 * Fri Sep 18 2020 Jan Grulich <jgrulich@redhat.com> - 5.19.90-1
 - 5.19.90
 
+* Fri Sep 11 2020 Jan Grulich <jgrulich@redhat.com> - 5.19.5-2
+- rebuild (qt5)
+
 * Tue Sep 01 2020 Jan Grulich <jgrulich@redhat.com> - 5.19.5-1
 - 5.19.5
 
-* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.19.4-2
+* Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.19.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
 * Tue Jul 28 2020 Jan Grulich <jgrulich@redhat.com> - 5.19.4-1
@@ -350,6 +387,9 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue May 05 2020 Jan Grulich <jgrulich@redhat.com> - 5.18.5-1
 - 5.18.5
 
+* Mon Apr 06 2020 Rex Dieter <rdieter@fedoraproject.org> - 5.18.4.1-2
+- rebuild (qt5)
+
 * Sat Apr 04 2020 Rex Dieter <rdieter@fedoraproject.org> - 5.18.4.1-1
 - 5.18.4.1
 
@@ -368,7 +408,7 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Feb 11 2020 Jan Grulich <jgrulich@redhat.com> - 5.18.0-1
 - 5.18.0
 
-* Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.17.90-2
+* Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.17.90-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
 * Thu Jan 16 2020 Jan Grulich <jgrulich@redhat.com> - 5.17.90-1
@@ -377,11 +417,11 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Jan 08 2020 Jan Grulich <jgrulich@redhat.com> - 5.17.5-1
 - 5.17.5
 
+* Mon Dec 09 2019 Jan Grulich <jgrulich@redhat.com> - 5.17.4-2
+- rebuild (qt5)
+
 * Thu Dec 05 2019 Jan Grulich <jgrulich@redhat.com> - 5.17.4-1
 - 5.17.4
-
-* Tue Nov 19 2019 Rex Dieter <rdieter@fedoraproject.org> - 5.17.3-2
-- Conflicts: kde-wallpapers < 15.08.3-10 (#1745658)
 
 * Wed Nov 13 2019 Martin Kyral <martin.kyral@gmail.com> - 5.17.3-1
 - 5.17.3
@@ -395,6 +435,9 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Thu Oct 10 2019 Jan Grulich <jgrulich@redhat.com> - 5.17.0-1
 - 5.17.0
 
+* Wed Sep 25 2019 Jan Grulich <jgrulich@redhat.com> - 5.16.90-2
+- rebuild (qt5)
+
 * Fri Sep 20 2019 Martin Kyral <martin.kyral@gmail.com> - 5.16.90-1
 - 5.16.90
 
@@ -404,7 +447,7 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Jul 30 2019 Martin Kyral <martin.kyral@gmail.com> - 5.16.4-1
 - 5.16.4
 
-* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.16.3-2
+* Sat Jul 27 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.16.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
 * Wed Jul 10 2019 Martin Kyral <martin.kyral@gmail.com> - 5.16.3-1
@@ -413,8 +456,14 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Jun 26 2019 Martin Kyral <martin.kyral@gmail.com> - 5.16.2-1
 - 5.16.2
 
+* Tue Jun 25 2019 Rex Dieter <rdieter@fedoraproject.org> - 5.16.1-2
+- rebuild (qt5)
+
 * Tue Jun 18 2019 Rex Dieter <rdieter@fedoraproject.org> - 5.16.1-1
 - 5.16.1
+
+* Mon Jun 17 2019 Jan Grulich <jgrulich@redhat.com> - 5.16.0-2
+- rebuild (qt5)
 
 * Tue Jun 11 2019 Martin Kyral <martin.kyral@gmail.com> - 5.16.0-1
 - 5.16.0
@@ -431,6 +480,9 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Mar 12 2019 Martin Kyral <martin.kyral@gmail.com> - 5.15.3-1
 - 5.15.3
 
+* Sun Mar 03 2019 Rex Dieter <rdieter@fedoraproject.org> - 5.15.2-2
+- rebuild (qt5)
+
 * Tue Feb 26 2019 Rex Dieter <rdieter@fedoraproject.org> - 5.15.2-1
 - 5.15.2
 
@@ -440,11 +492,14 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Feb 13 2019 Martin Kyral <martin.kyral@gmail.com> - 5.15.0-1
 - 5.15.0
 
-* Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.14.90-2
+* Sun Feb 03 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.14.90-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
 * Sun Jan 20 2019 Martin Kyral <martin.kyral@gmail.com> - 5.14.90-1
 - 5.14.90
+
+* Wed Dec 12 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.14.4-2
+- rebuild (qt5)
 
 * Tue Nov 27 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.14.4-1
 - 5.14.4
@@ -458,8 +513,14 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Oct 16 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.14.1-1
 - 5.14.1
 
+* Thu Oct 11 2018 Jan Grulich <jgrulich@redhat.com> - 5.14.0-2
+- Make initialization of drm and egl non-fatal
+
 * Sat Oct 06 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.14.0-1
 - 5.14.0
+
+* Fri Sep 21 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.90-2
+- rebuild (qt5)
 
 * Fri Sep 14 2018 Martin Kyral <martin.kyral@gmail.com> - 5.13.90-1
 - 5.13.90
@@ -467,10 +528,28 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Sep 04 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.5-1
 - 5.13.5
 
-* Thu Aug 02 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.4-1
+* Tue Sep 04 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.4-4
+- Make sure we build screencast support
+
+* Fri Aug 31 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.4-3
+- Do not link against libspa
+
+* Wed Aug 22 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.4-2
+- rebuild
+
+* Thu Aug 09 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.4-1
 - 5.13.4
 
-* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.13.3-2
+* Thu Aug 09 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.3-7
+- Rebuild for broken updates
+
+* Wed Aug 01 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.3-6
+- Search for libpipewire-0.2
+
+* Tue Jul 24 2018 Jan Grulich <jgrulich@redhat.com> - 5.13.3-5
+- Add support for PipeWire 0.2.x
+
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.13.3-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
 * Wed Jul 11 2018 Martin Kyral <martin.kyral@gmail.com> - 5.13.3-1
@@ -479,11 +558,21 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Mon Jul 09 2018 Martin Kyral <martin.kyral@gmail.com> - 5.13.2-1
 - 5.13.2
 
+* Thu Jun 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.1-3
+- rebuild (qt5)
+
 * Tue Jun 19 2018 Martin Kyral <martin.kyral@gmail.com> - 5.13.1-1
 - 5.13.1
 
+* Tue Jun 12 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.0-2
+- Supplements: (plasma-desktop and (flatpak or snapd))
+
 * Sat Jun 09 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.13.0-1
 - 5.13.0
+
+* Sun May 27 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.12.90-2
+- rebuild (qt5)
+- use %%make_build
 
 * Fri May 18 2018 Martin Kyral <martin.kyral@gmail.com> - 5.12.90-1
 - 5.12.90
@@ -515,8 +604,14 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Tue Jan 02 2018 Rex Dieter <rdieter@fedoraproject.org> - 5.11.5-1
 - 5.11.5
 
+* Sun Dec 31 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.11.4-2
+- rebuild (qt-5.10.0)
+
 * Thu Nov 30 2017 Martin Kyral <martin.kyral@gmail.com> - 5.11.4-1
 - 5.11.4
+
+* Mon Nov 27 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.11.3-2
+- rebuild (qt5)
 
 * Wed Nov 08 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.11.3-1
 - 5.11.3
@@ -530,202 +625,26 @@ Obsoletes:      plasma-workspace-wallpapers < 5.2.0-2
 * Wed Oct 11 2017 Martin Kyral <martin.kyral@gmail.com> - 5.11.0-1
 - 5.11.0
 
+* Wed Oct 11 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.5-2
+- BR: qt5-qtbase-private-devel, drop needless scriptlet, use %%autosetup, cosmetics
+
 * Thu Aug 24 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.5-1
 - 5.10.5
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.10.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.10.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
-* Sat Jul 22 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.4-1
+* Fri Jul 21 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.4-1
 - 5.10.4
 
-* Tue Jun 27 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.3-1
+* Wed Jun 28 2017 Martin Kyral <martin.kyral@gmail.com> - 5.10.3-1
 - 5.10.3
 
-* Thu Jun 15 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.2-1
+* Wed Jun 14 2017 Martin Kyral <martin.kyral@gmail.com> - 5.10.2-1
 - 5.10.2
 
-* Tue Jun 06 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.10.1-1
-- 5.10.1
-
-* Wed May 31 2017 Jan Grulich <jgrulich@redhat.com> - 5.10.0-1
-- 5.10.0
-
-* Wed Apr 26 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.9.5-1
-- 5.9.5
-
-* Thu Mar 23 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.9.4-1
-- 5.9.4
-
-* Sat Mar 04 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.9.3-2
-- rebuild
-
-* Wed Mar 01 2017 Jan Grulich <jgrulich@redhat.com> - 5.9.3-1
-- 5.9.3
-
-* Tue Feb 21 2017 Rex Dieter <rdieter@fedoraproject.org> - 5.8.6-1
-- 5.8.6
-
-* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.8.5-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
-
-* Wed Dec 28 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.5-1
-- 5.8.5
-
-* Tue Nov 22 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.4-1
-- 5.8.4
-
-* Tue Nov 01 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.3-1
-- 5.8.3
-
-* Tue Oct 18 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.2-1
-- 5.8.2
-
-* Tue Oct 11 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.1-1
-- 5.8.1
-
-* Thu Sep 29 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.8.0-1
-- 5.8.0
-
-* Thu Sep 22 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.95-1
-- 5.7.95
-
-* Tue Sep 13 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.5-1
-- 5.7.5
-
-* Tue Aug 23 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.4-1
-- 5.7.4
-
-* Tue Aug 02 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.3-1
-- 5.7.3
-
-* Tue Jul 19 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.2-1
-- 5.7.2
-
-* Tue Jul 12 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.1-1
-- 5.7.1
-
-* Thu Jun 30 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.7.0-1
-- 5.7.0
-
-* Sat Jun 25 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.95-1
-- 5.6.95
-
-* Tue Jun 14 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.5-1
-- 5.6.5
-
-* Sat May 14 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.4-1
-- 5.6.4
-
-* Tue Apr 19 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.3-1
-- 5.6.3
-
-* Sat Apr 09 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.2-1
-- 5.6.2
-
-* Fri Apr 08 2016 Rex Dieter <rdieter@fedoraproject.org> - 5.6.1-1
-- 5.6.1
-
-* Tue Mar 01 2016 Daniel Vrátil <dvratil@fedoraproject.org> - 5.5.5-1
-- Plasma 5.5.5
-
-* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 5.5.4-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
-
-* Wed Jan 27 2016 Daniel Vrátil <dvratil@fedoraproject.org> - 5.5.4-1
-- Plasma 5.5.4
-
-* Sat Jan 09 2016 Rex Dieter <rdieter@fedoraproject.org> 5.5.3-2
-- Conflicts: kde-wallpapers < 15.08.3-2
-
-* Thu Jan 07 2016 Daniel Vrátil <dvratil@fedoraproject.org> - 5.5.3-1
-- Plasma 5.5.3
-
-* Thu Dec 31 2015 Rex Dieter <rdieter@fedoraproject.org> - 5.5.2-1
-- 5.5.2
-
-* Fri Dec 18 2015 Daniel Vrátil <dvratil@fedoraproject.org> - 5.5.1-1
-- Plasma 5.5.1
-
-* Sun Dec 06 2015 Rex Dieter <rdieter@fedoraproject.org> - 5.5.0-2
-- .spec cosmetics
-- %%files: track specific wallpapers
-- License: LGPLv3
-- update URL
-
-* Thu Dec 03 2015 Daniel Vrátil <dvratil@fedoraproject.org> - 5.5.0-1
-- Plasma 5.5.0
-
-* Wed Nov 25 2015 Daniel Vrátil <dvratil@fedoraproject.org> - 5.4.95-1
-- Plasma 5.4.95
-
-* Thu Nov 05 2015 Daniel Vrátil <dvratil@fedoraproject.org> - 5.4.3-1
-- Plasma 5.4.3
-
-* Thu Oct 01 2015 Rex Dieter <rdieter@fedoraproject.org> - 5.4.2-1
-- 5.4.2
-
-* Wed Sep 09 2015 Rex Dieter <rdieter@fedoraproject.org> - 5.4.1-1
-- 5.4.1
-
-* Fri Aug 21 2015 Daniel Vrátil <dvratil@redhat.com> - 5.4.0-1
-- Plasma 5.4.0
-
-* Thu Aug 13 2015 Daniel Vrátil <dvratil@redhat.com> - 5.3.95-1
-- Plasma 5.3.95
-
-* Thu Jun 25 2015 Daniel Vrátil <dvratil@redhat.com> - 5.3.2-1
-- Plasma 5.3.2
-
-* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.3.1-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
-
-* Tue May 26 2015 Daniel Vrátil <dvratil@redhat.com> - 5.3.1-1
-- Plasma 5.3.1
-
-* Mon Apr 27 2015 Daniel Vrátil <dvratil@redhat.com> - 5.3.0-1
-- Plasma 5.3.0
-
-* Wed Apr 22 2015 Daniel Vrátil <dvratil@redhat.com> - 5.2.95-1
-- Plasma 5.2.95
-
-* Fri Mar 20 2015 Daniel Vrátil <dvratil@redhat.com> - 5.2.2-1
-- Plasma 5.2.2
-
-* Fri Feb 27 2015 Daniel Vrátil <dvratil@redhat.com> - 5.2.1-2
-- Rebuild (GCC 5)
-
-* Tue Feb 24 2015 Daniel Vrátil <dvratil@redhat.com> - 5.2.1-1
-- Plasma 5.2.1
-
-* Wed Feb 11 2015 Rex Dieter <rdieter@fedoraproject.org> - 5.2.0-2
-- make noarch (#1191712)
-- Requires: kde-filesystem (current owner of /usr/share/wallpapers)
-- minor .spec cleanup
-
-* Mon Jan 26 2015 Daniel Vrátil <dvratil@redhat.com> - 5.2.0-1
-- Plasma 5.2.0
-
-* Mon Jan 12 2015 Daniel Vrátil <dvratil@redhat.com> - 5.1.95-1.beta
-- Plasma 5.1.95 Beta
-
-* Wed Dec 17 2014 Daniel Vrátil <dvratil@redhat.com> - 5.1.2-2
-- Plasma 5.1.2
-
-* Fri Nov 07 2014 Daniel Vrátil <dvratil@redhat.com> - 5.1.1-1
-- Plasma 5.1.1
-
-* Tue Oct 14 2014 Daniel Vrátil <dvratil@redhat.com> - 5.1.0.1-1
-- Plasma 5.1.0.1
-
-* Thu Oct 09 2014 Daniel Vrátil <dvratil@redhat.com> - 5.1.0-1
-- Plasma 5.1.0
-
-* Tue Sep 16 2014 Daniel Vrátil <dvratil@redhat.com> - 5.0.2-1
-- Plasma 5.0.2
-
-* Sun Aug 10 2014 Daniel Vrátil <dvratil@redhat.com> - 5.0.1-1
-- Plasma 5.0.1
-
-* Fri Jul 18 2014 Daniel Vrátil <dvratil@redhat.com> - 5.0.0-1
-- Plasma 5.0.0
+* Wed May 31 2017 Martin Kyral <martin.kyral@gmail.com> - 5.10.0-1
+- 5.10.0 (new package)
