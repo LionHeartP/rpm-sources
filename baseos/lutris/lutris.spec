@@ -1,10 +1,10 @@
-%define commit f935de038dfbfd549927cd3a0fc90c243ef3d764
-%define shortcommit f935de0
+%define commit c45a98a42b71b799d7169abd6ef3bd25f0065f9b
+%define shortcommit c45a98a
 %global appid net.lutris.Lutris
 %define debug_package %{nil}
 
 Name:           lutris
-Version:        0.5.19
+Version:        0.5.20
 Release:        1.git.%{shortcommit}%{?dist}
 Summary:        Video game preservation platform
 
@@ -100,6 +100,7 @@ desktop-file-install --dir=%{buildroot}%{_datadir}/applications share/applicatio
 %{_bindir}/%{name}
 %{_datadir}/%{name}/
 %{_datadir}/applications/net.%{name}.Lutris.desktop
+%{_datadir}/applications/net.%{name}.Lutris1.desktop
 %{_datadir}/icons/hicolor/scalable/apps/net.lutris.Lutris.svg
 %{_datadir}/icons/hicolor/16x16/apps/net.lutris.Lutris.png
 %{_datadir}/icons/hicolor/22x22/apps/net.lutris.Lutris.png
@@ -108,6 +109,15 @@ desktop-file-install --dir=%{buildroot}%{_datadir}/applications share/applicatio
 %{_datadir}/icons/hicolor/48x48/apps/net.lutris.Lutris.png
 %{_datadir}/icons/hicolor/64x64/apps/net.lutris.Lutris.png
 %{_datadir}/icons/hicolor/128x128/apps/net.lutris.Lutris.png
+%{_datadir}/icons/hicolor/scalable/mimetypes/application-x-%{name}.svg
+%{_datadir}/icons/hicolor/16x16/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/22x22/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/24x24/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/32x32/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/48x48/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/64x64/mimetypes/application-x-%{name}.png
+%{_datadir}/icons/hicolor/128x128/mimetypes/application-x-%{name}.png
+%{_datadir}/mime/packages/application-x-%{name}.xml
 %{_datadir}/man/man1/%{name}.1.gz
 %{_metainfodir}/net.lutris.Lutris.metainfo.xml
 %pycached %{python3_sitelib}/%{name}/optional_settings.py
