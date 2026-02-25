@@ -1,10 +1,10 @@
-%define commit c45a98a42b71b799d7169abd6ef3bd25f0065f9b
-%define shortcommit c45a98a
+%define commit 159d7a21e5f171b815328e7e85aa40cfc3125ac8
+%define shortcommit 159d7a2
 %global appid net.lutris.Lutris
 %define debug_package %{nil}
 
 Name:           lutris
-Version:        0.5.20
+Version:        0.5.22
 Release:        1.git.%{shortcommit}%{?dist}
 Summary:        Video game preservation platform
 
